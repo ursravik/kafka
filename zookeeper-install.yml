@@ -1,0 +1,6 @@
+---
+- hosts: zoo
+  roles:
+#    - prereq
+#    - zokcfg
+#    - zokqo

@@ -1,0 +1,52 @@
+- name: Install a list of packages
+  apt:
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+
+
+- name: Add Docker’s official GPG key and set up the test repository
+  shell: |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    apt-get update
+  ignore_errors: yes
+
+- name: Install a list of packages
+  apt:
+    pkg:
+      - docker-ce
+      - docker-compose
+
+
+- name: update hosts file
+  blockinfile:
+    path: /etc/hosts
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |	
+      192.168.57.50 kafka1
+      192.168.57.50 zookeeper1
+      192.168.57.51 kafka2
+      192.168.57.51 zookeeper2
+      192.168.57.52 kafka3
+      192.168.57.52 zookeeper3
+    backup: yes
+    state: present
+
+- name: Copy docker compose file
+  copy:
+    src: zoonavigator-docker-compose.yml
+    dest: ~/zoonavigator-docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create docker container from docker compose file
+  shell: |
+    docker-compose -f zoonavigator-docker-compose.yml up -d
+    docker ps 
+  register: command_result
+- debug:
+    var: command_result

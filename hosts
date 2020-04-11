@@ -1,4 +1,7 @@
-[kafka]
+[zoo]
 kafka1 myid=1
 kafka2 myid=2
 kafka3 myid=3
+
+[web]
+kafkaweb0
