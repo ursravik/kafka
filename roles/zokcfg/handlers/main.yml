@@ -1,2 +1,0 @@
-- name: Start zookeeper
-  service: name=zookeeper state=started
