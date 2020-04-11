@@ -1,0 +1,16 @@
+# Install kafka manager
+- name: Copy docker compose file
+  copy:
+    src: kafka-manager-docker-compose.yml
+    dest: ~/kafka-manager-docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create kafka-manager container from docker compose file
+  shell: |
+    docker-compose -f kafka-manager-docker-compose.yml up -d
+    docker ps 
+  register: command_result
+- debug:
+    var: command_result

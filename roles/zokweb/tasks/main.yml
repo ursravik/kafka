@@ -1,3 +1,4 @@
+# install zookeeper web navigator
 - name: Install a list of packages
   apt:
     pkg:
