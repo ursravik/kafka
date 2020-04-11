@@ -1,0 +1,61 @@
+- name: Create kafka directory
+  file:
+    path: /data/kafka
+    state: directory
+    mode: '0755'
+
+- name: Add file limits configs - allow to open 100,000 file descriptors
+  blockinfile:
+    path: /etc/security/limits.conf
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |	
+      * hard nofile 100000
+      * soft nofile 100000
+    backup: yes
+    state: present
+
+- name: Reboot machine
+  reboot:
+    reboot_timeout: 120
+
+- name: Start service zookeeper
+  service:
+    name: zookeeper
+    state: started
+
+- name: Update kafka config file
+  template:
+    src: server.j2
+    dest: /root/kafka/config/server.properties
+    mode: '0644'
+
+- name: Copy kafka rc.d config file
+  copy:
+    src: kafka
+    dest: /etc/init.d/kafka
+    owner: root
+    group: root
+    mode: '0744'
+    backup: yes
+
+- name: update rc.d
+  command: update-rc.d kafka defaults
+  ignore_errors: yes
+
+
+- name: Start service kafka
+  service:
+    name: kafka
+    state: started
+
+- pause:
+    prompt: "Wait for kafka to start"
+    minutes: 1
+
+- name: check kafka status
+  command: nc -vz localhost 9092
+  register: command_result
+  ignore_errors: yes
+
+- debug:
+    var: command_result.stderr

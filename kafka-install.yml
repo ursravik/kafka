@@ -1,7 +1,5 @@
 ---
-- hosts: all
+- hosts: kafka
   roles:
-#    - prereq
-#    - zokcfg
-#    - check
-    - zokqo
+    - kafcfg
+
