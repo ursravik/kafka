@@ -1,15 +1,33 @@
+- name: Stop service zookeeper
+  service:
+    name: zookeeper
+    state: stopped
+
+- name: Create directory
+  file:
+    path: /data/zookeeper
+    state: directory
+    mode: '0755'  
+
+- name: Update id in zookeeper config
+  template:
+    src: myid.j2
+    dest: /data/zookeeper/myid
+    mode: '0644'
+
+- command: cat /data/zookeeper/myid
+  register: result
+- debug:
+    var: result.stdout
+
 - name: Copy zookeeper config file
   copy:
-    src: zookeeper
-    dest: /etc/init.d/zookeeper
+    src: zookeeper.properties
+    dest: /root/kafka/config/zookeeper.properties
     owner: root
     group: root
-    mode: '0744'
+    mode: '0644'
     backup: yes
-
-- name: update rc.d
-  command: update-rc.d zookeeper defaults
-  ignore_errors: yes
 
 - name: Start service zookeeper
   service:
@@ -28,19 +46,15 @@
 - debug:
     var: command_result.stderr
 
-#- name: start zookeeper if port 2181 not listening 
-#  service: name=zookeeper state=started
-#  when: "'failed' in command_result.stderr"
-
 - name: check zookeeper response
   shell: |
      echo "ruok" | nc localhost 2181 
+     echo "stat" | nc localhost 2181
   register: ruok_result
   ignore_errors: yes
 
 - debug:
     var: ruok_result.stdout
- 
 
 - name: Check cross server connection
   shell: |
@@ -52,3 +66,11 @@
 
 - debug:
     var: command_result1.stderr_lines
+
+- name: check log output
+  shell: |
+    cat /root/kafka/logs/zookeeper.out | head -100 | grep INFO
+  register: command_result2
+  ignore_errors: yes
+- debug:
+    var: command_result2.stdout

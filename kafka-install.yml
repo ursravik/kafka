@@ -2,4 +2,6 @@
 - hosts: all
   roles:
 #    - prereq
-    - zokcfg
+#    - zokcfg
+#    - check
+    - zokqo

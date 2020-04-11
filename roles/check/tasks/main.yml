@@ -1,0 +1,9 @@
+- name: Template a file to /etc/files.conf
+  template:
+    src: foo.j2
+    dest: /etc/foo.j2
+
+- command: cat /etc/foo.j2
+  register: result
+- debug:
+    var: result
